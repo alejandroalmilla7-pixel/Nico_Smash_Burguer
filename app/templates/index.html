@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nico Smash - Menú</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+</head>
+<body>
+    <!-- Barra superior de navegación (Cliente / Cocina) -->
+    <div class="top-bar">
+        <div class="banner-text">Pide del lado del cliente y mira cómo la comanda llega sola a la cocina.</div>
+    </div>
+
+    <div class="app-container">
+        <!-- Encabezado de la marca -->
+        <header class="brand-header">
+            <h1>NICO SMASH</h1>
+            <p>Elige lo que se te antoje</p>
+        </header>
+
+        <!-- Pestañas de Categorías -->
+        <div class="categories-nav">
+            <button class="cat-btn active" onclick="cambiarCategoria('hamburguesas')">🍔 Hamburguesas</button>
+            <button class="cat-btn" onclick="cambiarCategoria('papas')">🍟 Papas</button>
+            <button class="cat-btn" onclick="cambiarCategoria('bebidas')">🥤 Bebidas</button>
+        </div>
+
+        <!-- Contenedor del Catálogo de Productos -->
+        <div id="catalogContainer" class="catalog-grid">
+            <!-- Se inyecta dinámicamente con JS -->
+        </div>
+
+        <!-- Sección del Carrito y Datos de Envío -->
+        <div class="cart-section">
+            <h3>Tu Comanda / Carrito</h3>
+            <div id="cartItemsList">
+                <p class="empty-cart">No hay productos seleccionados aún.</p>
+            </div>
+
+            <form id="pedidoForm" class="order-form">
+                <h3>Datos de Envío y Pago</h3>
+                <label for="nombreCliente">Nombre del Cliente:</label>
+                <input type="text" id="nombreCliente" placeholder="Tu nombre..." required>
+
+                <label for="metodoPago">Método de Pago:</label>
+                <select id="metodoPago" required>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="transferencia">Transferencia</option>
+                </select>
+
+                <label for="direccionTexto">Dirección de Google Maps:</label>
+                <input type="text" id="direccionTexto" placeholder="Ej. Av. Principal 123, Ciudad" required>
+
+                <button type="submit" id="submitOrderBtn" class="btn-submit" disabled>Confirmar y Enviar Pedido</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='js/cliente.js') }}"></script>
+</body>
+</html>
