@@ -1,33 +1,37 @@
-// Definición del menú de productos basado en tus capturas
-const menuProductos = {
-    hamburguesas: [
-        { nombre: "Bacon Jam", descripcion: "La favorita de la casa con mermelada de tocino.", precio: 209 },
-        { nombre: "Cheesy", descripcion: "Nuestra clásica e irresistible con doble queso.", precio: 175 }
-    ],
-    papas: [
-        { nombre: "Orden de Papas", descripcion: "Crujientes papas a la francesa.", precio: 85 },
-        { nombre: "Papas Smash", descripcion: "Con 75g de carne smash, queso y aderezo especial.", precio: 165 }
-    ],
-    bebidas: [
-        { nombre: "Soda Italiana", descripcion: "Preparada al momento con sabores frutales.", precio: 80 },
-        { nombre: "Refresco 600 ml", descripcion: "Bien frío en presentación de 600ml.", precio: 30 }
-    ]
-};
-
-// Estado del carrito de compras
+let menuProductos = {};
 let carrito = [];
-let categoriaActual = 'hamburguesas';
+let categoriaActual = 'Smash';
 
-// Renderizar el catálogo según la categoría seleccionada
+async function cargarCatalogo() {
+    try {
+        const res = await fetch('/productos');
+        const productos = await res.json();
+        
+        menuProductos = {
+            'Smash': productos.filter(p => p.categoria === 'Smash'),
+            'Sodas Italianas': productos.filter(p => p.categoria === 'Sodas Italianas'),
+            'Refrescos': productos.filter(p => p.categoria === 'Refrescos')
+        };
+        cambiarCategoria('Smash');
+    } catch (error) {
+        console.error("Error al cargar el catálogo:", error);
+    }
+}
+
 function cambiarCategoria(categoria) {
     categoriaActual = categoria;
-    
-    // Actualizar botones activos
     document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    
+    // Identificar el botón activo de forma robusta
+    const botonActivo = Array.from(document.querySelectorAll('.cat-btn')).find(b => b.getAttribute('onclick').includes(categoria));
+    if (botonActivo) {
+        botonActivo.classList.add('active');
+    }
 
     const container = document.getElementById('catalogContainer');
     container.innerHTML = '';
+
+    if (!menuProductos[categoria]) return;
 
     menuProductos[categoria].forEach(prod => {
         const card = document.createElement('div');
@@ -36,22 +40,21 @@ function cambiarCategoria(categoria) {
             <div class="product-info">
                 <h4>${prod.nombre}</h4>
                 <p>${prod.descripcion}</p>
-                <div class="product-price">$${prod.precio} MXN</div>
+                <div class="product-price">$${prod.precio.toFixed(2)} MXN</div>
             </div>
-            <button class="btn-agregar" onclick="agregarAlCarrito('${categoria}', '${prod.nombre}')">+ Agregar</button>
+            <button class="btn-agregar" onclick="agregarAlCarrito('${prod.categoria}', '${prod.nombre}')">+ Agregar</button>
         `;
         container.appendChild(card);
     });
 }
 
-// Agregar un producto al carrito
 function agregarAlCarrito(tipo, nombre) {
     const itemExistente = carrito.find(item => item.nombre_producto === nombre);
     if (itemExistente) {
         itemExistente.cantidad += 1;
     } else {
         carrito.push({
-            tipo_producto: tipo === 'bebidas' ? 'refresco' : (tipo === 'papas' ? 'papas' : 'hamburguesa'),
+            tipo_producto: tipo,
             nombre_producto: nombre,
             cantidad: 1
         });
@@ -59,7 +62,6 @@ function agregarAlCarrito(tipo, nombre) {
     actualizarVistaCarrito();
 }
 
-// Modificar cantidad o eliminar del carrito
 function cambiarCantidad(nombre, delta) {
     const item = carrito.find(i => i.nombre_producto === nombre);
     if (item) {
@@ -71,7 +73,6 @@ function cambiarCantidad(nombre, delta) {
     actualizarVistaCarrito();
 }
 
-// Actualizar la interfaz HTML del carrito
 function actualizarVistaCarrito() {
     const lista = document.getElementById('cartItemsList');
     const submitBtn = document.getElementById('submitOrderBtn');
@@ -99,23 +100,17 @@ function actualizarVistaCarrito() {
     });
 }
 
-// Inicializar la vista al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
-    cambiarCategoria('hamburguesas');
+    cargarCatalogo();
 });
 
-// Enviar el pedido completo al backend FastAPI
 document.getElementById('pedidoForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const nombre_cliente = document.getElementById('nombreCliente').value;
-    const metodo_pago = document.getElementById('metodoPago').value;
-    const direccion_texto = document.getElementById('direccionTexto').value;
-
     const payload = {
-        nombre_cliente,
-        metodo_pago,
-        direccion_texto,
+        nombre_cliente: document.getElementById('nombreCliente').value,
+        metodo_pago: document.getElementById('metodoPago').value,
+        direccion_texto: document.getElementById('direccionTexto').value,
         latitud: null,
         longitud: null,
         items: carrito
@@ -129,7 +124,7 @@ document.getElementById('pedidoForm').addEventListener('submit', async (e) => {
         });
 
         if (response.ok) {
-            alert('¡Pedido realizado con éxito! La comanda ha sido enviada.');
+            alert('¡Pedido realizado con éxito!');
             carrito = [];
             document.getElementById('pedidoForm').reset();
             actualizarVistaCarrito();

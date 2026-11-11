@@ -7,15 +7,14 @@
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
 </head>
 <body>
-    <!-- Barra superior de navegación -->
     <div class="top-bar">
-        <div class="banner-text">Panel de control de comandas en tiempo real. (<span id="counterBadge">0</span> pedidos)</div>
+        <div class="banner-text">Panel de control de comandas en tiempo real. (<span id="counterBadge">0</span> pendientes)</div>
     </div>
 
-    <div class="app-container" style="max-width: 650px;">
+    <div class="app-container" style="max-width: 750px;">
         <header class="brand-header">
             <h1>PANEL DE COCINA</h1>
-            <p>Comandas entrantes</p>
+            <p>Comandas entrantes y gestión de estados</p>
         </header>
 
         <div id="listaPedidos">

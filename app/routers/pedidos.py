@@ -1,17 +1,18 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List, Optional
 from app.database import get_db
 from app.models import Usuario, Pedido, DetallePedido
-from app.schemas import PedidoCreateSchema
+from app.schemas import PedidoCreateSchema, PedidoResponseSchema, PedidoUpdateEstadoSchema
 
 router = APIRouter(
     prefix="/pedidos",
     tags=["Pedidos"]
 )
 
-@router.post("")
+@router.post("", response_model=dict, status_code=status.HTTP_201_CREATED)
 def crear_pedido(data: PedidoCreateSchema, db: Session = Depends(get_db)):
-    # 1. Buscar o registrar al cliente
+    # Buscar o crear el usuario cliente de manera transaccional
     usuario = db.query(Usuario).filter(Usuario.nombre == data.nombre_cliente).first()
     if not usuario:
         usuario = Usuario(nombre=data.nombre_cliente)
@@ -19,10 +20,11 @@ def crear_pedido(data: PedidoCreateSchema, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(usuario)
 
-    # 2. Crear cabecera del pedido (incluyendo método de pago y dirección de mapas)
+    # Crear la entidad principal del pedido
     nuevo_pedido = Pedido(
         usuario_id=usuario.id,
         metodo_pago=data.metodo_pago,
+        estado="pendiente",
         direccion_texto=data.direccion_texto,
         latitud=data.latitud,
         longitud=data.longitud
@@ -31,7 +33,7 @@ def crear_pedido(data: PedidoCreateSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nuevo_pedido)
 
-    # 3. Registrar los ítems del pedido (soporta cantidades múltiples por tipo de producto)
+    # Registrar los detalles (ítems) del pedido
     for item in data.items:
         nuevo_detalle = DetallePedido(
             pedido_id=nuevo_pedido.id,
@@ -42,25 +44,23 @@ def crear_pedido(data: PedidoCreateSchema, db: Session = Depends(get_db)):
         db.add(nuevo_detalle)
     
     db.commit()
-    return {"message": "Pedido registrado exitosamente", "pedido_id": nuevo_pedido.id}
+    return {"message": "Pedido registrado exitosamente", "pedido_id": nuevo_pedido.id, "estado": nuevo_pedido.estado}
 
-@router.get("")
-def listar_pedidos(db: Session = Depends(get_db)):
-    # Retorna los pedidos incluyendo los datos del cliente y los detalles asociados
-    pedidos = db.query(Pedido).all()
-    resultado = []
-    for p in pedidos:
-        resultado.append({
-            "id": p.id,
-            "cliente": p.cliente.nombre if p.cliente else "Desconocido",
-            "metodo_pago": p.metodo_pago,
-            "direccion_texto": p.direccion_texto,
-            "items": [
-                {
-                    "tipo_producto": d.tipo_producto,
-                    "nombre_producto": d.nombre_producto,
-                    "cantidad": d.cantidad
-                } for d in p.detalles
-            ]
-        })
-    return resultado
+@router.get("", response_model=List[PedidoResponseSchema])
+def listar_pedidos(estado: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(Pedido)
+    if estado:
+        query = query.filter(Pedido.estado == estado)
+    
+    # Retorna directamente los objetos ORM; Pydantic se encarga de serializarlos limpiamente
+    return query.order_by(Pedido.fecha_creacion.desc()).all()
+
+@router.patch("/{pedido_id}/estado", response_model=dict)
+def actualizar_estado_pedido(pedido_id: int, data: PedidoUpdateEstadoSchema, db: Session = Depends(get_db)):
+    pedido = db.query(Pedido).filter(Pedido.id == pedido_id).first()
+    if not pedido:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pedido no encontrado")
+    
+    pedido.estado = data.estado
+    db.commit()
+    return {"message": f"Estado actualizado a {pedido.estado}", "pedido_id": pedido.id, "estado": pedido.estado}
