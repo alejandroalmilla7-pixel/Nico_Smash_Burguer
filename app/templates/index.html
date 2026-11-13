@@ -3,37 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nico Smash - Menú</title>
+    <title>Nico Smash - Comalcalco</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
 </head>
 <body>
-    <!-- Barra superior de navegación (Cliente / Cocina) -->
-    <div class="top-bar">
-        <div class="banner-text">Pide del lado del cliente y mira cómo la comanda llega sola a la cocina.</div>
+
+    <!-- VISTA 1: PORTADA / LANDING PAGE -->
+    <div id="landingView" class="landing-container">
+        <div class="landing-content">
+            <div class="landing-logo">🍔 NICO SMASH</div>
+            <p class="landing-tagline">Las smash más jugosas de Comalcalco</p>
+            <p class="landing-sub">Pide en línea y recibe tu comanda directo en cocina al instante.</p>
+            <button class="btn-main-action" onclick="iniciarPedido()">Hacer mi pedido</button>
+        </div>
     </div>
 
-    <div class="app-container">
-        <!-- Encabezado de la marca -->
+    <!-- VISTA 2: APLICACIÓN PRINCIPAL (MENÚ Y PEDIDO) -->
+    <div id="mainAppView" class="app-container" style="display: none;">
+        
+        <div class="top-bar">
+            <button class="btn-back-landing" onclick="volverAlInicio()">← Volver al inicio</button>
+            <div class="banner-text">Menú Activo</div>
+        </div>
+
         <header class="brand-header">
             <h1>NICO SMASH</h1>
             <p>Elige lo que se te antoje</p>
         </header>
 
-        <!-- Pestañas de Categorías alineadas al backend y base de datos -->
+        <!-- SECCIÓN DE GANCHO: LA FAVORITA DE LA CASA (FUERA DE LAS PESTAÑAS) -->
+        <div id="featuredProductContainer" class="featured-section">
+            <!-- Inyectado dinámicamente como elemento destacado -->
+        </div>
+
+        <!-- Pestañas de Categorías -->
         <div class="categories-nav">
             <button class="cat-btn active" onclick="cambiarCategoria('Smash')">🍔 Smash</button>
-            <button class="cat-btn" onclick="cambiarCategoria('Sodas Italianas')">🥤 Sodas Italianas</button>
+            <button class="cat-btn" onclick="cambiarCategoria('Papas')">🍟 Papas</button>
+            <button class="cat-btn" onclick="cambiarCategoria('Sodas Italianas')">🥤 Sodas</button>
             <button class="cat-btn" onclick="cambiarCategoria('Refrescos')">🧊 Refrescos</button>
         </div>
 
-        <!-- Contenedor del Catálogo de Productos -->
-        <div id="catalogContainer" class="catalog-grid">
-            <!-- Se inyecta dinámicamente con JS -->
+        <!-- Leyenda obligatoria -->
+        <div class="info-legend">
+            <p>⚠️ <em>Todas nuestras hamburguesas incluyen 150g de papas a la francesa.</em></p>
         </div>
 
-        <!-- Sección del Carrito y Datos de Envío -->
-        <div class="cart-section">
-            <h3>Tu Comanda / Carrito</h3>
+        <!-- Contenedor del Catálogo por Categorías -->
+        <div id="catalogContainer" class="catalog-grid">
+            <!-- Inyectado dinámicamente por JS -->
+        </div>
+    </div>
+
+    <!-- BOTÓN FLOTANTE DEL CARRITO -->
+    <div id="floatingCartBar" class="floating-cart-bar" style="display: none;" onclick="toggleCartModal()">
+        <div class="cart-bar-info">
+            <span id="cartItemCount">0 items</span> • <span id="cartTotalPrice">$0.00 MXN</span>
+        </div>
+        <div class="cart-bar-action">
+            Ver Pedido 🛒
+        </div>
+    </div>
+
+    <!-- MODAL / SECCIÓN DE CHECKOUT Y CARRITO -->
+    <div id="cartModal" class="cart-modal" style="display: none;">
+        <div class="cart-modal-content">
+            <div class="cart-modal-header">
+                <h3>Tu Comanda / Carrito</h3>
+                <button class="close-modal-btn" onclick="toggleCartModal()">✕</button>
+            </div>
+            
             <div id="cartItemsList">
                 <p class="empty-cart">No hay productos seleccionados aún.</p>
             </div>
@@ -50,9 +89,9 @@
                 </select>
 
                 <label for="direccionTexto">Dirección de Google Maps:</label>
-                <input type="text" id="direccionTexto" placeholder="Ej. Av. Principal 123, Ciudad" required>
+                <input type="text" id="direccionTexto" placeholder="Ej. Av. Principal 123, Comalcalco" required>
 
-                <button type="submit" id="submitOrderBtn" class="btn-submit" disabled>Confirmar y Enviar Pedido</button>
+                <button type="submit" id="submitOrderBtn" class="btn-submit" disabled>Confirmar y Enviar a Cocina</button>
             </form>
         </div>
     </div>

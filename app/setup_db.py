@@ -9,13 +9,13 @@ def seed_productos(db: Session):
     menu_inicial = [
         # --- CATEGORÍA: Smash ---
         {
-            "categoria": "Smash",
+            "categoria": "Papas",
             "nombre": "Papas Smash",
             "descripcion": "300 g de papas a la francesa, aderezo de la casa, 75 g de carne, doble queso americano y trozos de tocino",
             "precio": 165.00
         },
         {
-            "categoria": "Smash",
+            "categoria": "Papas",
             "nombre": "Orden de papas",
             "descripcion": "300 g de papas fritas a la francesa",
             "precio": 85.00

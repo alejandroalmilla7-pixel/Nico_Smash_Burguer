@@ -3,22 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administrador - Pedidos</title>
+    <title>Panel de Administrador - Nico Smash</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
 </head>
 <body>
-    <div class="top-bar">
-        <div class="banner-text">Panel de control de comandas en tiempo real. (<span id="counterBadge">0</span> pendientes)</div>
+    <!-- Barra Superior de Navegación del Admin -->
+    <div class="top-bar admin-top-bar">
+        <div class="banner-text">
+            Panel de control • <span id="counterBadge">0</span> comandas pendientes
+        </div>
+        <div class="admin-nav-tabs">
+            <button class="admin-tab-btn active" onclick="cambiarVistaAdmin('comandas')">🍳 Comandas</button>
+            <button class="admin-tab-btn" onclick="cambiarVistaAdmin('ventas')">📊 Ventas y Analítica</button>
+        </div>
     </div>
 
-    <div class="app-container" style="max-width: 750px;">
+    <!-- VISTA 1: GESTIÓN DE COMANDAS EN TIEMPO REAL -->
+    <div id="comandasView" class="app-container" style="max-width: 750px;">
         <header class="brand-header">
             <h1>PANEL DE COCINA</h1>
-            <p>Comandas entrantes y gestión de estados</p>
+            <p>Comandas entrantes y gestión de estados operativos</p>
         </header>
 
         <div id="listaPedidos">
             <p style="color: white; text-align: center;">Cargando pedidos...</p>
+        </div>
+    </div>
+
+    <!-- VISTA 2: RESUMEN DE VENTAS Y ANALÍTICA -->
+    <div id="ventasView" class="app-container" style="max-width: 750px; display: none;">
+        <header class="brand-header">
+            <h1>REPORTE FINANCIERO</h1>
+            <p>Métricas de rendimiento comercial de Nico Smash</p>
+        </header>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>Ventas de Hoy</h3>
+                <p id="metricHoy" class="metric-value">$0.00 MXN</p>
+            </div>
+            <div class="metric-card">
+                <h3>Ticket Promedio</h3>
+                <p id="metricTicket" class="metric-value">$0.00 MXN</p>
+            </div>
+            <div class="metric-card">
+                <h3>Ventas de la Semana</h3>
+                <p id="metricSemana" class="metric-value">$0.00 MXN</p>
+            </div>
+        </div>
+
+        <div class="sales-history-section">
+            <h3 style="color: #ffc107; border-bottom: 2px solid #58111a; padding-bottom: 8px;">Historial de Comandas Procesadas</h3>
+            <div id="listaVentasHistorico">
+                <p style="color: #f8d7da; text-align: center;">Cargando historial financiero...</p>
+            </div>
         </div>
     </div>
 
